@@ -1,0 +1,144 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: 15 23 42;
+  --muted: 100 116 139;
+  --surface: 248 250 252;
+  --panel: 255 255 255;
+  --line: 226 232 240;
+  --brand: 15 118 110;
+  --secondary: 37 99 235;
+  --accent: 245 158 11;
+  color-scheme: light;
+}
+
+.dark {
+  --ink: 241 245 249;
+  --muted: 148 163 184;
+  --surface: 15 23 42;
+  --panel: 17 24 39;
+  --line: 51 65 85;
+  --brand: 45 212 191;
+  --secondary: 96 165 250;
+  --accent: 251 191 36;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  color: rgb(var(--ink));
+  background: rgb(var(--surface));
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.focus-ring {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface;
+}
+
+@layer components {
+  .surface {
+    @apply rounded-lg border border-line bg-panel shadow-soft;
+  }
+
+  .input-control {
+    @apply focus-ring min-h-12 w-full rounded-lg border border-line bg-panel px-4 py-3 text-sm text-ink shadow-sm transition placeholder:text-slate-400 hover:border-slate-300 focus:border-brand focus:shadow-focus dark:hover:border-slate-600;
+  }
+
+  .input-icon-control {
+    @apply input-control pl-11;
+  }
+
+  .page-title {
+    @apply text-2xl font-bold text-ink sm:text-3xl;
+  }
+
+  .eyebrow {
+    @apply text-xs font-bold uppercase text-brand;
+    letter-spacing: 0;
+  }
+
+  .button-ripple {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+
+  .button-ripple::after {
+    background: rgba(255, 255, 255, 0.24);
+    border-radius: 9999px;
+    content: '';
+    height: 0;
+    left: 50%;
+    opacity: 0;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 0;
+    z-index: -1;
+  }
+
+  .button-ripple:active::after {
+    height: 220%;
+    opacity: 1;
+    transition: height 280ms ease, width 280ms ease, opacity 150ms ease;
+    width: 220%;
+  }
+
+  .skeleton {
+    @apply animate-shimmer rounded-md bg-slate-200 dark:bg-slate-700;
+    background-image: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+    background-size: 200% 100%;
+  }
+}
+
+::selection {
+  background: rgba(15, 118, 110, 0.2);
+}
+
+::-webkit-scrollbar {
+  height: 9px;
+  width: 9px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--line));
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  border-radius: 9999px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,13 @@
+# System Design Write-up
+
+The Society Maintenance Tracker is designed as a modular MERN-style application with a React frontend, Express API, and MongoDB database. The backend is stateless and uses JWT authentication, so it can be deployed behind a load balancer or platform proxy later. Users have a `role` field, and protected middleware enforces resident and admin access at the API boundary.
+
+Complaint history is separated from the main complaint document. The `Complaint` model stores the current state: resident, category, description, optional photo URL, status, priority, and resolved timestamp. The `ComplaintHistory` model records each admin change with the complaint ID, actor, old and new status, old and new priority, optional note, and timestamp. This avoids overwriting audit data and keeps the complaint detail page simple: load the current complaint, then load history sorted by latest update.
+
+Overdue detection is computed from `createdAt`, current time, status, and the configurable `OVERDUE_THRESHOLD_DAYS` value. A complaint is overdue when it is older than the threshold and not resolved. This avoids stale stored flags and ensures changes to the threshold apply immediately. The admin complaint endpoint decorates each complaint with `isOverdue` and sorts overdue items first. The dashboard counts overdue complaints by applying the same logic to unresolved complaints.
+
+Photo handling uses `multer` with local storage under `backend/uploads`. Uploads are optional, limited by size, and restricted to image MIME types. The complaint stores only the resulting URL path, keeping binary data out of MongoDB. The backend serves `/uploads` statically so the frontend can render complaint photos with meaningful alt text. For production, the same interface can be replaced by S3, Cloudinary, or another object store.
+
+Notifications are handled by a dedicated email service. If SMTP variables are configured, `nodemailer` sends real emails. If not, the service logs email payloads, making the feature testable without external credentials. Status-change emails go to the complaint resident and include the old status, new status, and note. Important notices trigger emails to all resident users. Regular notices are stored and shown in the notice board without email fan-out.
+
+The frontend uses protected routes and role-aware navigation. Residents see their complaint list, new complaint form, complaint detail/history, and notices. Admins see dashboard metrics, all complaint filters, complaint update controls, notices, and notice creation. Tailwind components keep spacing, form styling, badges, tables, loading states, and errors consistent across pages.
