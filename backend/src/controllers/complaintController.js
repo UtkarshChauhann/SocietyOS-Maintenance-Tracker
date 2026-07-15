@@ -4,6 +4,7 @@ import { AppError } from '../utils/AppError.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { attachOverdue, isComplaintOverdue } from '../utils/overdue.js';
 import { sendComplaintStatusEmail } from '../services/emailService.js';
+import { uploadComplaintPhoto } from '../services/cloudinaryService.js';
 
 const populateComplaint = (query) =>
   query.populate('resident', 'name email').sort({ createdAt: -1 });
@@ -32,13 +33,15 @@ export const createComplaint = asyncHandler(async (req, res) => {
     throw new AppError('Category and description are required', 400);
   }
 
-  const photoUrl = req.file ? `/uploads/${req.file.filename}` : null;
+  const uploadedPhoto = req.file ? await uploadComplaintPhoto(req.file) : null;
 
   const complaint = await Complaint.create({
+    societyId: req.user.societyId._id || req.user.societyId,
     resident: req.user._id,
     category,
     description,
-    photoUrl
+    photoUrl: uploadedPhoto?.secure_url || null,
+    photoPublicId: uploadedPhoto?.public_id || null
   });
 
   const populated = await complaint.populate('resident', 'name email');
@@ -46,13 +49,13 @@ export const createComplaint = asyncHandler(async (req, res) => {
 });
 
 export const getMyComplaints = asyncHandler(async (req, res) => {
-  const complaints = await Complaint.find({ resident: req.user._id }).sort({ createdAt: -1 });
+  const complaints = await Complaint.find({ societyId: req.user.societyId._id || req.user.societyId, resident: req.user._id }).sort({ createdAt: -1 });
   res.json({ success: true, complaints: complaints.map(attachOverdue) });
 });
 
 export const getAllComplaints = asyncHandler(async (req, res) => {
   const { status, category, priority, startDate, endDate, search } = req.query;
-  const filter = {};
+  const filter = { societyId: req.user.societyId._id || req.user.societyId };
 
   if (status) filter.status = status;
   if (category) filter.category = category;
@@ -67,7 +70,11 @@ export const getAllComplaints = asyncHandler(async (req, res) => {
   }
 
   const complaints = await populateComplaint(Complaint.find(filter));
-  const decorated = complaints.map(attachOverdue).sort((a, b) => {
+  let decorated = complaints.map(attachOverdue);
+  if (String(req.query.attention).toLowerCase() === 'true') {
+    decorated = decorated.filter((complaint) => complaint.priority === 'High' || complaint.isOverdue);
+  }
+  decorated = decorated.sort((a, b) => {
     if (a.isOverdue !== b.isOverdue) return a.isOverdue ? -1 : 1;
     return new Date(b.createdAt) - new Date(a.createdAt);
   });
@@ -76,7 +83,7 @@ export const getAllComplaints = asyncHandler(async (req, res) => {
 });
 
 export const getComplaintById = asyncHandler(async (req, res) => {
-  const complaint = await Complaint.findById(req.params.id).populate('resident', 'name email');
+  const complaint = await Complaint.findOne({ _id: req.params.id, societyId: req.user.societyId._id || req.user.societyId }).populate('resident', 'name email');
   if (!complaint) {
     throw new AppError('Complaint not found', 404);
   }
@@ -92,7 +99,7 @@ export const getComplaintById = asyncHandler(async (req, res) => {
 
 export const updateComplaint = asyncHandler(async (req, res) => {
   const { status, priority, note = '' } = req.body;
-  const complaint = await Complaint.findById(req.params.id).populate('resident', 'name email');
+  const complaint = await Complaint.findOne({ _id: req.params.id, societyId: req.user.societyId._id || req.user.societyId }).populate('resident', 'name email');
 
   if (!complaint) {
     throw new AppError('Complaint not found', 404);
@@ -129,6 +136,7 @@ export const updateComplaint = asyncHandler(async (req, res) => {
   await complaint.save();
 
   await ComplaintHistory.create({
+    societyId: req.user.societyId._id || req.user.societyId,
     complaint: complaint._id,
     changedBy: req.user._id,
     oldStatus,
@@ -151,11 +159,12 @@ export const updateComplaint = asyncHandler(async (req, res) => {
   res.json({ success: true, complaint: detail });
 });
 
-export const getDashboard = asyncHandler(async (_req, res) => {
+export const getDashboard = asyncHandler(async (req, res) => {
+  const societyId = req.user.societyId._id || req.user.societyId;
   const [statusRows, categoryRows, unresolved] = await Promise.all([
-    Complaint.aggregate([{ $group: { _id: '$status', count: { $sum: 1 } } }]),
-    Complaint.aggregate([{ $group: { _id: '$category', count: { $sum: 1 } } }]),
-    Complaint.find({ status: { $ne: 'Resolved' } }).select('status createdAt')
+    Complaint.aggregate([{ $match: { societyId } }, { $group: { _id: '$status', count: { $sum: 1 } } }]),
+    Complaint.aggregate([{ $match: { societyId } }, { $group: { _id: '$category', count: { $sum: 1 } } }]),
+    Complaint.find({ societyId, status: { $ne: 'Resolved' } }).select('status createdAt')
   ]);
 
   const byStatus = COMPLAINT_STATUSES.reduce((acc, status) => ({ ...acc, [status]: 0 }), {});

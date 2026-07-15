@@ -2,6 +2,12 @@ import mongoose from 'mongoose';
 
 const noticeSchema = new mongoose.Schema(
   {
+    societyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Society',
+      required: true,
+      index: true
+    },
     postedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

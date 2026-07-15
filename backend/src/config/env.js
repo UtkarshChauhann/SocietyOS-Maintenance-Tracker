@@ -19,12 +19,17 @@ export const env = {
   clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
   overdueThresholdDays: Number(process.env.OVERDUE_THRESHOLD_DAYS || 3),
   maxUploadSizeMb: Number(process.env.MAX_UPLOAD_SIZE_MB || 5),
+  cloudinary: {
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+    apiKey: process.env.CLOUDINARY_API_KEY,
+    apiSecret: process.env.CLOUDINARY_API_SECRET
+  },
   smtp: {
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT || 587),
-    secure: process.env.SMTP_SECURE === 'true',
+    secure: String(process.env.SMTP_SECURE || 'false').toLowerCase() === 'true',
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
-    from: process.env.EMAIL_FROM || 'Society Maintenance <no-reply@example.com>'
+    from: process.env.SMTP_FROM || process.env.EMAIL_FROM || process.env.SMTP_USER || 'SocietyOS <no-reply@example.com>'
   }
 };

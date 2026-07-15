@@ -208,7 +208,7 @@ export const AppLayout = () => {
               </div>
 
               <div className="hidden min-w-0 sm:block">
-                <p className="text-xs font-medium text-muted">SocietyOS</p>
+                <p className="text-xs font-medium text-muted">{user?.society?.name || 'SocietyOS'}</p>
                 <p className="truncate text-sm font-bold text-ink">{currentPage}</p>
               </div>
 
@@ -303,7 +303,7 @@ export const AppLayout = () => {
                     >
                       <div className="border-b border-line px-3 py-2.5">
                         <p className="truncate text-sm font-bold text-ink">{user?.name}</p>
-                        <p className="mt-0.5 text-xs capitalize text-muted">{user?.role} account</p>
+                        <p className="mt-0.5 text-xs capitalize text-muted">{user?.role} · {user?.society?.name || 'Society'}</p>
                       </div>
                       <button
                         className="focus-ring mt-1 flex min-h-10 w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-muted transition hover:bg-slate-50 hover:text-ink dark:hover:bg-slate-800"

@@ -50,8 +50,8 @@ const Sparkline = ({ value, color = '#0f766e' }) => {
   );
 };
 
-const KpiCard = ({ label, value, icon: Icon, tone, trend, sparkColor }) => (
-  <Surface interactive className="p-5">
+const KpiCard = ({ label, value, icon: Icon, tone, trend, sparkColor, to }) => (
+  <Surface as={Link} to={to} interactive className="p-5 focus-ring">
     <div className="flex items-start justify-between gap-3">
       <span className={`grid h-10 w-10 place-items-center rounded-lg ${tone}`}><Icon size={19} /></span>
       <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400"><TrendingUp size={13} /> {trend}</span>
@@ -123,10 +123,10 @@ export const AdminDashboardPage = () => {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiCard label="Total complaints" value={total} icon={ClipboardList} trend="Live" sparkColor="#0f766e" tone="bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-300" />
-        <KpiCard label="Open requests" value={open} icon={CircleDot} trend={`${Math.round((open / statusTotal) * 100)}%`} sparkColor="#f59e0b" tone="bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300" />
-        <KpiCard label="In progress" value={inProgress} icon={TimerReset} trend={`${Math.round((inProgress / statusTotal) * 100)}%`} sparkColor="#2563eb" tone="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300" />
-        <KpiCard label="Overdue" value={dashboard?.overdueCount || 0} icon={AlertTriangle} trend="Priority" sparkColor="#ef4444" tone="bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-300" />
+        <KpiCard label="Total complaints" value={total} icon={ClipboardList} trend="Live" to="/admin/complaints" sparkColor="#0f766e" tone="bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-300" />
+        <KpiCard label="Open requests" value={open} icon={CircleDot} trend={`${Math.round((open / statusTotal) * 100)}%`} to="/admin/complaints?status=Open" sparkColor="#f59e0b" tone="bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300" />
+        <KpiCard label="In progress" value={inProgress} icon={TimerReset} trend={`${Math.round((inProgress / statusTotal) * 100)}%`} to="/admin/complaints?status=In%20Progress" sparkColor="#2563eb" tone="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300" />
+        <KpiCard label="Overdue" value={dashboard?.overdueCount || 0} icon={AlertTriangle} trend="Priority" to="/admin/complaints?attention=true" sparkColor="#ef4444" tone="bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-300" />
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(300px,.55fr)]">

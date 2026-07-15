@@ -1,6 +1,6 @@
 import { ArrowUpRight, CheckCircle2, CircleDot, Clock3, PlusCircle } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { api, getErrorMessage } from '../api/client.js';
 import { Alert } from '../components/Alert.jsx';
 import { Button } from '../components/Button.jsx';
@@ -11,8 +11,8 @@ import { PageHeader } from '../components/PageHeader.jsx';
 import { Surface } from '../components/Surface.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 
-const StatCard = ({ label, value, icon: Icon, tone }) => (
-  <Surface interactive className="p-5">
+const StatCard = ({ label, value, icon: Icon, tone, to }) => (
+  <Surface as={Link} to={to} interactive className="p-5 focus-ring">
     <div className="flex items-start justify-between gap-3">
       <div>
         <p className="text-sm font-medium text-muted">{label}</p>
@@ -25,6 +25,7 @@ const StatCard = ({ label, value, icon: Icon, tone }) => (
 
 export const ResidentComplaintsPage = () => {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -46,6 +47,12 @@ export const ResidentComplaintsPage = () => {
     }),
     [complaints]
   );
+  const statusFilter = searchParams.get('status') || '';
+  const visibleComplaints = useMemo(
+    () => statusFilter ? complaints.filter((item) => item.status === statusFilter) : complaints,
+    [complaints, statusFilter]
+  );
+  const viewLabel = statusFilter === 'Open' ? 'Open requests' : statusFilter === 'In Progress' ? 'In-progress requests' : statusFilter === 'Resolved' ? 'Resolved requests' : 'My complaints';
 
   return (
     <section className="grid gap-7">
@@ -64,17 +71,17 @@ export const ResidentComplaintsPage = () => {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="All requests" value={stats.total} icon={ArrowUpRight} tone="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200" />
-        <StatCard label="Open" value={stats.open} icon={CircleDot} tone="bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300" />
-        <StatCard label="In progress" value={stats.progress} icon={Clock3} tone="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300" />
-        <StatCard label="Resolved" value={stats.resolved} icon={CheckCircle2} tone="bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300" />
+        <StatCard label="All requests" value={stats.total} to="/complaints" icon={ArrowUpRight} tone="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200" />
+        <StatCard label="Open" value={stats.open} to="/complaints?status=Open" icon={CircleDot} tone="bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300" />
+        <StatCard label="In progress" value={stats.progress} to="/complaints?status=In%20Progress" icon={Clock3} tone="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300" />
+        <StatCard label="Resolved" value={stats.resolved} to="/complaints?status=Resolved" icon={CheckCircle2} tone="bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300" />
       </div>
 
       <div className="grid gap-5">
         <PageHeader
           eyebrow="Request history"
-          title="My complaints"
-          description="Review status, priority, and resolution updates for every issue you have reported."
+          title={viewLabel}
+          description={statusFilter ? `Showing your ${statusFilter.toLowerCase()} maintenance requests.` : 'Review status, priority, and resolution updates for every issue you have reported.'}
           actions={
             <Button as={Link} to="/complaints/new" variant="secondary">
               <PlusCircle size={17} /> New complaint
@@ -82,7 +89,7 @@ export const ResidentComplaintsPage = () => {
           }
         />
         <Alert>{error}</Alert>
-        {loading ? <Loading label="Loading complaints" /> : <ComplaintTable complaints={complaints} emptyMessage="No complaints yet" />}
+        {loading ? <Loading label="Loading complaints" /> : <ComplaintTable complaints={visibleComplaints} emptyMessage={statusFilter ? `No ${statusFilter.toLowerCase()} complaints yet` : 'No complaints yet'} />}
       </div>
     </section>
   );

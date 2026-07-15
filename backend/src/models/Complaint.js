@@ -14,6 +14,12 @@ export const COMPLAINT_CATEGORIES = [
 
 const complaintSchema = new mongoose.Schema(
   {
+    societyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Society',
+      required: true,
+      index: true
+    },
     resident: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
@@ -34,6 +40,10 @@ const complaintSchema = new mongoose.Schema(
       maxlength: 2000
     },
     photoUrl: {
+      type: String,
+      default: null
+    },
+    photoPublicId: {
       type: String,
       default: null
     },

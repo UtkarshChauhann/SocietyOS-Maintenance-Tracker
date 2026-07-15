@@ -3,6 +3,12 @@ import { COMPLAINT_PRIORITIES, COMPLAINT_STATUSES } from './Complaint.js';
 
 const complaintHistorySchema = new mongoose.Schema(
   {
+    societyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Society',
+      required: true,
+      index: true
+    },
     complaint: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Complaint',

@@ -35,7 +35,7 @@ export const LoginPage = () => {
       eyebrow="Welcome back"
       title="Sign in to your community"
       description="Access your complaints, notices, and community updates in one secure place."
-      footer={<>New to SocietyOS? <Link className="font-semibold text-brand hover:underline" to="/register">Create an account</Link></>}
+      footer={<>New to SocietyOS? <Link className="font-semibold text-brand hover:underline" to="/register">Join a society</Link><span className="mx-2">·</span><Link className="font-semibold text-brand hover:underline" to="/register-society">Create a society</Link></>}
     >
       <form className="grid gap-5" onSubmit={submit}>
         <Alert>{error}</Alert>
@@ -77,6 +77,7 @@ export const LoginPage = () => {
             </button>
           </div>
         </Field>
+        <div className="-mt-2 text-right"><Link className="text-sm font-semibold text-brand hover:underline" to="/forgot-password">Forgot password?</Link></div>
         <Button type="submit" size="lg" loading={loading} loadingText="Signing in..." className="mt-1 w-full">
           Sign in
         </Button>

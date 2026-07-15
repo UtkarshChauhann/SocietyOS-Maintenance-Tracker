@@ -14,9 +14,12 @@ export const requireAuth = asyncHandler(async (req, _res, next) => {
 
   try {
     const payload = jwt.verify(token, env.jwtSecret);
-    const user = await User.findById(payload.id);
+    const user = await User.findById(payload.id).populate('societyId', 'name joiningCode isActive');
     if (!user) {
       throw new AppError('Authentication required', 401);
+    }
+    if (!user.societyId || !user.societyId.isActive) {
+      throw new AppError('This society is inactive', 403);
     }
     req.user = user;
     next();

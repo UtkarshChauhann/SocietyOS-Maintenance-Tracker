@@ -27,6 +27,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ['resident', 'admin'],
       default: 'resident'
+    },
+    societyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Society',
+      required: true,
+      index: true
     }
   },
   { timestamps: true }

@@ -2,6 +2,10 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AppLayout } from '../layouts/AppLayout.jsx';
 import { LoginPage } from '../pages/LoginPage.jsx';
 import { RegisterPage } from '../pages/RegisterPage.jsx';
+import { RegisterSocietyPage } from '../pages/RegisterSocietyPage.jsx';
+import { ForgotPasswordPage } from '../pages/ForgotPasswordPage.jsx';
+import { VerifyOtpPage } from '../pages/VerifyOtpPage.jsx';
+import { ResetPasswordPage } from '../pages/ResetPasswordPage.jsx';
 import { ResidentComplaintsPage } from '../pages/ResidentComplaintsPage.jsx';
 import { NewComplaintPage } from '../pages/NewComplaintPage.jsx';
 import { ComplaintDetailPage } from '../pages/ComplaintDetailPage.jsx';
@@ -15,6 +19,10 @@ export const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/login" replace /> },
   { path: '/login', element: <LoginPage /> },
   { path: '/register', element: <RegisterPage /> },
+  { path: '/register-society', element: <RegisterSocietyPage /> },
+  { path: '/forgot-password', element: <ForgotPasswordPage /> },
+  { path: '/verify-otp', element: <VerifyOtpPage /> },
+  { path: '/reset-password', element: <ResetPasswordPage /> },
   {
     element: <ProtectedRoute />,
     children: [

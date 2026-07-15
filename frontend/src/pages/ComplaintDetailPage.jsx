@@ -120,7 +120,7 @@ export const ComplaintDetailPage = () => {
                   <figure className="mt-7 overflow-hidden rounded-lg border border-line bg-slate-50 dark:bg-slate-900">
                     <img
                       className="max-h-[480px] w-full object-cover"
-                      src={`${UPLOADS_URL}${complaint.photoUrl}`}
+                      src={complaint.photoUrl.startsWith('http') ? complaint.photoUrl : `${UPLOADS_URL}${complaint.photoUrl}`}
                       alt={`Submitted evidence for ${complaint.category} complaint`}
                     />
                     <figcaption className="flex items-center gap-2 border-t border-line px-4 py-3 text-xs text-muted"><Camera size={14} /> Resident attachment</figcaption>

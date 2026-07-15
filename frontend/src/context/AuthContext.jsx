@@ -34,6 +34,12 @@ export const AuthProvider = ({ children }) => {
     return data.user;
   };
 
+  const registerSociety = async (values) => {
+    const { data } = await api.post('/societies/register', values);
+    persistSession(data);
+    return data;
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -42,7 +48,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const value = useMemo(
-    () => ({ user, token, isAuthenticated: Boolean(token && user), login, register, logout }),
+    () => ({ user, token, isAuthenticated: Boolean(token && user), login, register, registerSociety, logout }),
     [token, user]
   );
 

@@ -4,8 +4,9 @@ import { AppError } from '../utils/AppError.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { sendImportantNoticeEmail } from '../services/emailService.js';
 
-export const getNotices = asyncHandler(async (_req, res) => {
-  const notices = await Notice.find()
+export const getNotices = asyncHandler(async (req, res) => {
+  const societyId = req.user.societyId._id || req.user.societyId;
+  const notices = await Notice.find({ societyId })
     .populate('postedBy', 'name role')
     .sort({ isImportant: -1, createdAt: -1 });
 
@@ -20,6 +21,7 @@ export const createNotice = asyncHandler(async (req, res) => {
   }
 
   const notice = await Notice.create({
+    societyId: req.user.societyId._id || req.user.societyId,
     postedBy: req.user._id,
     title,
     content,
@@ -29,7 +31,7 @@ export const createNotice = asyncHandler(async (req, res) => {
   const populated = await notice.populate('postedBy', 'name role');
 
   if (populated.isImportant) {
-    const residents = await User.find({ role: 'resident' }).select('name email');
+    const residents = await User.find({ societyId: req.user.societyId._id || req.user.societyId, role: 'resident' }).select('name email');
     await sendImportantNoticeEmail({ residents, notice: populated });
   }
 

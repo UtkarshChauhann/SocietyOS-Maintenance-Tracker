@@ -1,5 +1,6 @@
 import { Filter, Search, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { api, getErrorMessage } from '../api/client.js';
 import { Alert } from '../components/Alert.jsx';
 import { Badge } from '../components/Badge.jsx';
@@ -10,12 +11,13 @@ import { Loading } from '../components/Loading.jsx';
 import { PageHeader } from '../components/PageHeader.jsx';
 import { Surface } from '../components/Surface.jsx';
 
-const initialFilters = { status: '', category: '', priority: '', startDate: '', endDate: '', search: '' };
+const initialFilters = { status: '', category: '', priority: '', startDate: '', endDate: '', search: '', attention: '' };
 
 export const AdminComplaintsPage = () => {
+  const [searchParams] = useSearchParams();
   const [complaints, setComplaints] = useState([]);
   const [options, setOptions] = useState({ statuses: [], categories: [], priorities: [] });
-  const [filters, setFilters] = useState(initialFilters);
+  const [filters, setFilters] = useState(() => Object.fromEntries(Object.keys(initialFilters).map((key) => [key, searchParams.get(key) || ''])));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -71,6 +73,7 @@ export const AdminComplaintsPage = () => {
             <Filter size={17} className="text-muted" />
             <h2 className="text-sm font-bold text-ink">Filter complaints</h2>
             {activeFilterCount ? <Badge className="bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-300">{activeFilterCount} active</Badge> : null}
+            {filters.attention ? <Badge className="bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-300">High priority or overdue</Badge> : null}
           </div>
           {activeFilterCount ? (
             <Button size="sm" variant="ghost" onClick={() => setFilters(initialFilters)}><X size={15} /> Clear</Button>

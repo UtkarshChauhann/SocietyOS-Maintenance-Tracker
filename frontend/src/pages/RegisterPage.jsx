@@ -1,7 +1,7 @@
-import { Eye, EyeOff, LockKeyhole, Mail, UserRound } from 'lucide-react';
-import { useState } from 'react';
+import { Copy, Eye, EyeOff, LockKeyhole, Mail, UserRound } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getErrorMessage } from '../api/client.js';
+import { api, getErrorMessage } from '../api/client.js';
 import { Alert } from '../components/Alert.jsx';
 import { AuthLayout } from '../components/AuthLayout.jsx';
 import { Button } from '../components/Button.jsx';
@@ -11,11 +11,16 @@ import { useAuth } from '../context/AuthContext.jsx';
 export const RegisterPage = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [form, setForm] = useState({ name: '', email: '', password: '', societyCode: '' });
+  const [generalSociety, setGeneralSociety] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const strength = Math.min(3, [form.password.length >= 8, /[A-Z]/.test(form.password), /\d/.test(form.password)].filter(Boolean).length);
+
+  useEffect(() => {
+    api.get('/societies/general').then(({ data }) => setGeneralSociety(data.society)).catch(() => {});
+  }, []);
 
   const submit = async (event) => {
     event.preventDefault();
@@ -36,10 +41,17 @@ export const RegisterPage = () => {
       eyebrow="Resident access"
       title="Join your community"
       description="Create your resident account to report issues and follow every update from submission to resolution."
-      footer={<>Already registered? <Link className="font-semibold text-brand hover:underline" to="/login">Sign in</Link></>}
+      footer={<>Already registered? <Link className="font-semibold text-brand hover:underline" to="/login">Sign in</Link><span className="mx-2">·</span><Link className="font-semibold text-brand hover:underline" to="/register-society">Create a society</Link></>}
     >
       <form className="grid gap-5" onSubmit={submit}>
         <Alert>{error}</Alert>
+        <div className="rounded-lg border border-teal-200 bg-teal-50 p-3 text-sm text-teal-900 dark:border-teal-900 dark:bg-teal-950/40 dark:text-teal-100">
+          <p>To explore the application, join General Society using code:</p>
+          <div className="mt-2 flex items-center justify-between gap-2 font-bold tracking-wide">
+            <span>{generalSociety?.joiningCode || 'GENERAL-DEMO'}</span>
+            <button type="button" className="focus-ring rounded-md p-1.5 hover:bg-teal-100 dark:hover:bg-teal-900" aria-label="Copy General Society code" onClick={() => navigator.clipboard?.writeText(generalSociety?.joiningCode || 'GENERAL-DEMO')}><Copy size={16} /></button>
+          </div>
+        </div>
         <Field id="name" label="Full name">
           <div className="relative">
             <UserRound className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={18} />
@@ -53,6 +65,9 @@ export const RegisterPage = () => {
               required
             />
           </div>
+        </Field>
+        <Field id="societyCode" label="Society joining code" hint="Ask your society admin for this code.">
+          <input id="societyCode" className="input-control uppercase" placeholder="e.g. GENERAL-DEMO" value={form.societyCode} onChange={(event) => setForm({ ...form, societyCode: event.target.value.toUpperCase() })} required />
         </Field>
         <Field id="email" label="Email address">
           <div className="relative">
