@@ -208,7 +208,7 @@ export const AppLayout = () => {
               </div>
 
               <div className="hidden min-w-0 sm:block">
-                <p className="text-xs font-medium text-muted">{user?.society?.name || 'SocietyOS'}</p>
+                <p className="text-xs font-medium text-muted">{user?.society?.name || 'Nestra'}</p>
                 <p className="truncate text-sm font-bold text-ink">{currentPage}</p>
               </div>
 

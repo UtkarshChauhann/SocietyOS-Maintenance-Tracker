@@ -46,9 +46,9 @@ export const sendPasswordResetOtpEmail = async ({ to, name, otp }) => {
   console.info(`[password-reset] OTP generated for ${maskedAddress(to)}`);
   return sendEmail({
     to,
-    subject: 'Your SocietyOS password reset code',
-    text: `Hello ${name || 'there'},\n\nYour SocietyOS password reset code is ${otp}. It expires in 10 minutes. Do not share this code with anyone. If you did not request this, you can ignore this email.`,
-    html: `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;color:#172033"><h2 style="color:#0f766e">SocietyOS</h2><p>Hello ${name || 'there'},</p><p>Use this one-time code to reset your password:</p><p style="font-size:30px;font-weight:700;letter-spacing:8px;color:#0f766e">${otp}</p><p>This code expires in <strong>10 minutes</strong>.</p><p><strong>Never share this code with anyone.</strong></p><p style="color:#64748b">If you did not request a password reset, you can safely ignore this email.</p></div>`
+    subject: 'Your Nestra password reset code',
+    text: `Hello ${name || 'there'},\n\nYour Nestra password reset code is ${otp}. It expires in 10 minutes. Do not share this code with anyone. If you did not request this, you can ignore this email.`,
+    html: `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;color:#172033"><h2 style="color:#0f766e">Nestra</h2><p>Hello ${name || 'there'},</p><p>Use this one-time code to reset your password:</p><p style="font-size:30px;font-weight:700;letter-spacing:8px;color:#0f766e">${otp}</p><p>This code expires in <strong>10 minutes</strong>.</p><p><strong>Never share this code with anyone.</strong></p><p style="color:#64748b">If you did not request a password reset, you can safely ignore this email.</p></div>`
   });
 };
 

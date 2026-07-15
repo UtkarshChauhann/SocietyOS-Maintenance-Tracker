@@ -35,7 +35,7 @@ export const LoginPage = () => {
       eyebrow="Welcome back"
       title="Sign in to your community"
       description="Access your complaints, notices, and community updates in one secure place."
-      footer={<>New to SocietyOS? <Link className="font-semibold text-brand hover:underline" to="/register">Join a society</Link><span className="mx-2">·</span><Link className="font-semibold text-brand hover:underline" to="/register-society">Create a society</Link></>}
+      footer={<>New to Nestra? <Link className="font-semibold text-brand hover:underline" to="/register">Join a society</Link><span className="mx-2">·</span><Link className="font-semibold text-brand hover:underline" to="/register-society">Create a society</Link></>}
     >
       <form className="grid gap-5" onSubmit={submit}>
         <Alert>{error}</Alert>

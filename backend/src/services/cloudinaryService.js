@@ -16,7 +16,7 @@ export const uploadComplaintPhoto = (file) => {
   if (!configured) throw new AppError('Image uploads are not configured', 503);
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
-      { folder: 'societyos/complaints', resource_type: 'image' },
+      { folder: 'nestra/complaints', resource_type: 'image' },
       (error, result) => (error ? reject(new AppError('Image upload failed', 502)) : resolve(result))
     );
     stream.end(file.buffer);

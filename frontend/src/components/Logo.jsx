@@ -7,7 +7,7 @@ export const Logo = ({ compact = false }) => (
     </span>
     {!compact ? (
       <div className="min-w-0">
-        <p className="truncate text-sm font-bold text-ink">SocietyOS</p>
+        <p className="truncate text-sm font-bold text-ink">Nestra</p>
         <p className="truncate text-xs text-muted">Community operations</p>
       </div>
     ) : null}
