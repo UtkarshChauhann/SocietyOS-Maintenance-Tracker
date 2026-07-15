@@ -1,43 +1,20 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import { env } from '../config/env.js';
 import { AppError } from '../utils/AppError.js';
 
-const hasSmtpConfig = Boolean(env.smtp.host && env.smtp.user && env.smtp.pass && env.smtp.from);
+const hasResendConfig = Boolean(env.resend.apiKey && env.resend.from);
 const isProduction = env.nodeEnv === 'production';
-
-const transporter = hasSmtpConfig
-  ? nodemailer.createTransport({
-      host: env.smtp.host,
-      port: Number(env.smtp.port),
-      secure: env.smtp.secure,
-      auth: { user: env.smtp.user, pass: env.smtp.pass }
-    })
-  : null;
+const resend = hasResendConfig ? new Resend(env.resend.apiKey) : null;
 
 const maskedAddress = (address) => {
   const [name, domain] = String(address).split('@');
   return domain ? `${name.slice(0, 2)}***@${domain}` : 'recipient';
 };
 
-export const verifyEmailTransport = async () => {
-  if (!hasSmtpConfig) {
-    console.warn(`[email] SMTP unavailable: configure SMTP_HOST, SMTP_PORT, SMTP_SECURE, SMTP_USER, SMTP_PASS, and SMTP_FROM (${isProduction ? 'production requests will fail' : 'development fallback enabled'})`);
-    return false;
-  }
-  try {
-    await transporter.verify();
-    console.info(`[email] SMTP connection verified (${env.smtp.host}:${env.smtp.port})`);
-    return true;
-  } catch (error) {
-    console.error('[email] SMTP verification failed:', error.message);
-    return false;
-  }
-};
-
 export const sendEmail = async ({ to, subject, text, html }) => {
-  if (!hasSmtpConfig) {
+  if (!hasResendConfig) {
     if (isProduction) {
-      console.error('[email] Sending failed: SMTP is not configured in production');
+      console.error('[email] Resend delivery failed: RESEND_API_KEY or EMAIL_FROM is not configured');
       throw new AppError('Password reset email service is temporarily unavailable', 503);
     }
     console.warn('[email:dev-log]', { to, subject, text });
@@ -45,11 +22,22 @@ export const sendEmail = async ({ to, subject, text, html }) => {
   }
 
   try {
-    const result = await transporter.sendMail({ from: env.smtp.from, to, subject, text, html });
-    console.info(`[email] SMTP accepted message ${result.messageId || '(no message id)'} for ${maskedAddress(to)}`);
-    return result;
+    const { data, error } = await resend.emails.send({
+      from: env.resend.from,
+      to,
+      subject,
+      text,
+      html
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    console.info(`[email] Resend accepted message ${data?.id || '(no id)'} for ${maskedAddress(to)}`);
+    return data;
   } catch (error) {
-    console.error(`[email] Sending failed for ${maskedAddress(to)}:`, error.message);
+    console.error(`[email] Resend API failure for ${maskedAddress(to)}:`, error.message || error);
     throw new AppError('Password reset email service is temporarily unavailable', 503);
   }
 };
