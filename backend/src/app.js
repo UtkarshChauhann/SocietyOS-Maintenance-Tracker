@@ -14,27 +14,28 @@ import { errorHandler, notFound } from './middleware/errorHandler.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const allowedOrigins = new Set([
-  env.clientUrl,
   'https://nestra-society.vercel.app',
   'http://localhost:5173',
-  'http://127.0.0.1:5173'
-]);
+  'http://127.0.0.1:5173',
+  env.clientUrl
+].filter(Boolean));
+
+const corsOptions = {
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.has(origin)) {
+      callback(null, true);
+      return;
+    }
+    callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true
+};
 
 export const app = express();
 
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
-app.use(
-  cors({
-    origin(origin, callback) {
-      if (!origin || allowedOrigins.has(origin)) {
-        callback(null, true);
-        return;
-      }
-      callback(new Error('Not allowed by CORS'));
-    },
-    credentials: true
-  })
-);
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -54,7 +55,7 @@ app.use(
 app.use('/uploads', express.static(path.resolve(__dirname, '../uploads')));
 
 app.get('/api/health', (_req, res) => {
-  res.json({ success: true, message: 'Society Maintenance Tracker API is running' });
+  res.json({ success: true, message: 'Nestra API is running' });
 });
 
 app.use('/api', authRoutes);
