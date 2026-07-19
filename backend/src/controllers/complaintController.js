@@ -147,12 +147,16 @@ export const updateComplaint = asyncHandler(async (req, res) => {
   });
 
   if (changedStatus) {
-    await sendComplaintStatusEmail({
-      resident: complaint.resident,
-      complaint,
-      oldStatus,
-      note
-    });
+    try {
+      await sendComplaintStatusEmail({
+        resident: complaint.resident,
+        complaint,
+        oldStatus,
+        note
+      });
+    } catch (error) {
+      console.error('[complaint-email] Status update saved, but notification failed:', error.message);
+    }
   }
 
   const detail = await buildComplaintDetail(complaint);
